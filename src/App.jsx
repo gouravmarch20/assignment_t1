@@ -1,21 +1,35 @@
-import React, { useState } from "react";
+// src/App.js
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./page/HomePage";
 import SettingPage from "./page/SettingPage";
-import Header from "./components/Header";
+import LoginPage from "./page/LoginPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50">
-     
-        <Routes>
-          <Route path="/" element={<HomePage />} />
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
 
-          <Route path="/setting" element={<SettingPage />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <HomePage />
+            </ProtectedRoute>
+          }
+        />
 
-        </Routes>
-      </div>
+        <Route
+          path="/setting"
+          element={
+            <ProtectedRoute>
+              <SettingPage />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
     </Router>
   );
 };

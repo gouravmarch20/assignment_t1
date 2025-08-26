@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Header from "../components/Header";
 
 const LOCALSTORAGE_KEY = "app_settings_v1";
 
@@ -63,6 +64,7 @@ export default function SettingsPage() {
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
+        <Header />
       <h1 className="text-2xl font-semibold mb-4">Settings</h1>
 
       {/* Appearance Section */}
