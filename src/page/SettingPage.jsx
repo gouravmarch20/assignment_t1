@@ -66,8 +66,7 @@ export default function SettingsPage() {
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
-      <h1>{theme}</h1>
-      <Header />
+       <Header />
       <h1 className="text-2xl font-semibold mb-4">Settings</h1>
 
       {/* Appearance Section */}
