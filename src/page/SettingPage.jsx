@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
+import { useThemeStore } from "../store/themeStore";
 
 const LOCALSTORAGE_KEY = "app_settings_v1";
 
@@ -22,7 +23,7 @@ export default function SettingsPage() {
       return defaultSettings;
     }
   });
-
+  const { theme, toggleTheme } = useThemeStore();
   // Persist to localStorage whenever settings change
   useEffect(() => {
     try {
@@ -43,6 +44,7 @@ export default function SettingsPage() {
   }, [settings.darkMode]);
 
   function updateSettings(patch) {
+    toggleTheme();
     setSettings((prev) => ({ ...prev, ...patch }));
   }
 
@@ -64,15 +66,18 @@ export default function SettingsPage() {
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
-        <Header />
+      <h1>{theme}</h1>
+      <Header />
       <h1 className="text-2xl font-semibold mb-4">Settings</h1>
 
       {/* Appearance Section */}
-      <section className="mb-6 bg-white/80 dark:bg-gray-900/70 p-4 rounded-2xl shadow-sm">
+      <section className="mb-6 bg-white/80 dark:bg-blue-100/70 p-4 rounded-2xl shadow-sm">
         <div className="flex items-center justify-between mb-2">
           <div>
             <h2 className="text-lg font-medium">Appearance</h2>
-            <p className="text-sm text-gray-500">Toggle dark mode for the app UI.</p>
+            <p className="text-sm text-gray-500">
+              Toggle dark mode for the app UI.
+            </p>
           </div>
 
           <label className="inline-flex items-center cursor-pointer">
@@ -94,7 +99,7 @@ export default function SettingsPage() {
       </section>
 
       {/* Notifications Section */}
-      <section className="mb-6 bg-white/80 dark:bg-gray-900/70 p-4 rounded-2xl shadow-sm">
+      <section className="mb-6 bg-white/80 dark:bg-blue-100/70 p-4 rounded-2xl shadow-sm">
         <h2 className="text-lg font-medium mb-2">Notifications</h2>
         <p className="text-sm text-gray-500 mb-4">
           Choose how you'd like to receive updates.

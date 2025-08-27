@@ -2,7 +2,9 @@ import React, { useEffect, useMemo, useState, useCallback } from "react";
 
 const API_URL = "https://jsonplaceholder.typicode.com/users";
 
-export default function UsersTablePage({ apiUrl = API_URL, pageSize = 8 }) {
+export default function UsersTablePage({ showToast }) {
+  const apiUrl = API_URL;
+  const pageSize = 5;
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -95,6 +97,7 @@ export default function UsersTablePage({ apiUrl = API_URL, pageSize = 8 }) {
   const handleSaveUser = useCallback((updated) => {
     setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
     setEditingUser(null);
+    showToast("Update User", "success");
   }, []);
 
   // UI helpers
@@ -223,6 +226,8 @@ export default function UsersTablePage({ apiUrl = API_URL, pageSize = 8 }) {
                             onClick={() => {
                               // mock delete
                               if (!confirm("Delete this user (mock)?")) return;
+                              showToast("User delete", "success");
+
                               setUsers((prev) =>
                                 prev.filter((x) => x.id !== u.id)
                               );

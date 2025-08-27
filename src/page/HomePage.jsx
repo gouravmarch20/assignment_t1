@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback } from "react";
 import Header from "../components/Header";
 import Toast from "../components/Toast";
-import ProductTable from "../components/UserTable";
+import UserTable from "../components/UserTable";
 
 function HomePage() {
   // toast
@@ -20,7 +20,7 @@ function HomePage() {
       <Header />
 
       <main className="max-w-7xl mx-auto p-6">
-        <ProductTable />
+        <UserTable showToast={showToast} />
       </main>
 
       <Toast
