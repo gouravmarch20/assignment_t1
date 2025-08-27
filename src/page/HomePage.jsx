@@ -16,7 +16,7 @@ function HomePage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="">
       <Header />
 
       <main className="max-w-7xl mx-auto p-6">

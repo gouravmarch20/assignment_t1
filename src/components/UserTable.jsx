@@ -1,8 +1,15 @@
+"use client";
+
 import React, { useEffect, useMemo, useState, useCallback } from "react";
+import { useThemeStore } from "../store/themeStore";
+import Pagination from "./Pagination";
+import Filters from "./UserFilter";
 
 const API_URL = "https://jsonplaceholder.typicode.com/users";
 
 export default function UsersTablePage({ showToast }) {
+  const { theme, toggleTheme } = useThemeStore();
+
   const apiUrl = API_URL;
   const pageSize = 5;
   const [users, setUsers] = useState([]);
@@ -31,7 +38,6 @@ export default function UsersTablePage({ showToast }) {
       })
       .then((data) => {
         if (!mounted) return;
-        // normalize shape we need
         const normalized = data.map((u) => ({
           id: u.id,
           name: u.name,
@@ -93,14 +99,12 @@ export default function UsersTablePage({ showToast }) {
     return sorted.slice(start, start + pageSize);
   }, [sorted, page, pageSize]);
 
-  // Mock update: update user locally and close modal
   const handleSaveUser = useCallback((updated) => {
     setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
     setEditingUser(null);
     showToast("Update User", "success");
   }, []);
 
-  // UI helpers
   const toggleSort = (key) => {
     if (sortKey === key) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -110,12 +114,27 @@ export default function UsersTablePage({ showToast }) {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-2xl font-semibold mb-4">Users Table</h2>
+  // theme classes
+  const bgClass = theme === "dark" ? "bg-gray-900" : "bg-gray-50";
+  const textClass = theme === "dark" ? "text-gray-200" : "text-gray-800";
+  const tableBg = theme === "dark" ? "bg-gray-800" : "bg-white";
+  const tableText = theme === "dark" ? "text-gray-200" : "text-gray-700";
+  const tableHeader =
+    theme === "dark"
+      ? "bg-gray-700 text-gray-200"
+      : "bg-gray-100 text-gray-700";
 
-        <div className="bg-white p-4 rounded-lg shadow mb-4">
+  return (
+    <div className={`min-h-screen p-6 ${bgClass} ${textClass}`}>
+      <div className="max-w-6xl mx-auto">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-semibold">Users Table</h2>
+          <button onClick={toggleTheme} className="px-3 py-2 border rounded">
+            Toggle Theme
+          </button>
+        </div>
+
+        <div className={`${tableBg} p-4 rounded-lg shadow mb-4`}>
           <Filters
             search={search}
             setSearch={setSearch}
@@ -127,10 +146,11 @@ export default function UsersTablePage({ showToast }) {
               setCompanyFilter("All");
               setPage(1);
             }}
+            theme={theme}
           />
         </div>
 
-        <div className="bg-white rounded-lg shadow overflow-x-auto">
+        <div className={`${tableBg} rounded-lg shadow overflow-x-auto`}>
           {loading ? (
             <div className="p-8 text-center text-gray-500">
               Loading users...
@@ -143,7 +163,6 @@ export default function UsersTablePage({ showToast }) {
                   onClick={() => {
                     setError(null);
                     setLoading(true);
-                    // re-trigger fetch by toggling apiUrl state — quick and dirty: call fetch again
                     fetch(apiUrl)
                       .then((r) => r.json())
                       .then((data) =>
@@ -172,7 +191,7 @@ export default function UsersTablePage({ showToast }) {
             </div>
           ) : (
             <table className="w-full text-sm">
-              <thead className="bg-gray-100 text-left text-gray-700">
+              <thead className={`${tableHeader} text-left`}>
                 <tr>
                   <th className="px-4 py-3">#</th>
                   <th
@@ -205,7 +224,13 @@ export default function UsersTablePage({ showToast }) {
                   pageData.map((u, idx) => (
                     <tr
                       key={u.id}
-                      className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                      className={
+                        idx % 2 === 0
+                          ? tableBg
+                          : theme === "dark"
+                          ? "bg-gray-700"
+                          : "bg-gray-50"
+                      }
                     >
                       <td className="px-4 py-3">
                         {(page - 1) * pageSize + idx + 1}
@@ -224,10 +249,8 @@ export default function UsersTablePage({ showToast }) {
                           </button>
                           <button
                             onClick={() => {
-                              // mock delete
                               if (!confirm("Delete this user (mock)?")) return;
                               showToast("User delete", "success");
-
                               setUsers((prev) =>
                                 prev.filter((x) => x.id !== u.id)
                               );
@@ -252,7 +275,12 @@ export default function UsersTablePage({ showToast }) {
             Showing {(page - 1) * pageSize + 1} -{" "}
             {Math.min(page * pageSize, sorted.length)} of {sorted.length}
           </div>
-          <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            setPage={setPage}
+            theme={theme}
+          />
         </div>
       </div>
 
@@ -261,165 +289,9 @@ export default function UsersTablePage({ showToast }) {
           user={editingUser}
           onClose={() => setEditingUser(null)}
           onSave={handleSaveUser}
+          theme={theme}
         />
       )}
-    </div>
-  );
-}
-
-function Filters({
-  search,
-  setSearch,
-  companyFilter,
-  setCompanyFilter,
-  companies,
-  onClear,
-}) {
-  return (
-    <div className="flex flex-col sm:flex-row gap-3 items-center">
-      <input
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search name / email / phone"
-        className="border px-3 py-2 rounded w-full sm:w-1/2"
-      />
-
-      <select
-        value={companyFilter}
-        onChange={(e) => setCompanyFilter(e.target.value)}
-        className="border px-3 py-2 rounded w-full sm:w-1/4"
-      >
-        {companies.map((c) => (
-          <option key={c} value={c}>
-            {c}
-          </option>
-        ))}
-      </select>
-
-      <div className="flex gap-2">
-        <button
-          onClick={onClear}
-          className="px-3 py-2 bg-red-500 text-white rounded"
-        >
-          Clear
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function Pagination({ page, totalPages, setPage }) {
-  const pages = [];
-  const start = Math.max(1, page - 2);
-  const end = Math.min(totalPages, start + 4);
-  for (let i = start; i <= end; i++) pages.push(i);
-
-  return (
-    <div className="flex items-center gap-2">
-      <button
-        onClick={() => setPage((p) => Math.max(1, p - 1))}
-        disabled={page === 1}
-        className="px-3 py-1 border rounded disabled:opacity-50"
-      >
-        Prev
-      </button>
-      {pages.map((p) => (
-        <button
-          key={p}
-          onClick={() => setPage(p)}
-          className={`px-3 py-1 border rounded ${
-            p === page ? "bg-indigo-600 text-white" : ""
-          }`}
-        >
-          {p}
-        </button>
-      ))}
-      <button
-        onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-        disabled={page === totalPages}
-        className="px-3 py-1 border rounded disabled:opacity-50"
-      >
-        Next
-      </button>
-    </div>
-  );
-}
-
-function EditModal({ user, onClose, onSave }) {
-  const [form, setForm] = useState({ ...user });
-  const [saving, setSaving] = useState(false);
-  const [err, setErr] = useState(null);
-
-  useEffect(() => setForm({ ...user }), [user]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setErr(null);
-    // basic validation
-    if (!form.name.trim()) return setErr("Name required");
-    if (!form.email.trim()) return setErr("Email required");
-    setSaving(true);
-    // mock network delay
-    setTimeout(() => {
-      onSave(form);
-      setSaving(false);
-    }, 700);
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-full max-w-lg p-6">
-        <h3 className="text-lg font-medium mb-4">Edit User</h3>
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div>
-            <label className="block text-xs text-gray-600">Name</label>
-            <input
-              value={form.name}
-              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              className="w-full border px-3 py-2 rounded"
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-600">Email</label>
-            <input
-              value={form.email}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, email: e.target.value }))
-              }
-              className="w-full border px-3 py-2 rounded"
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-600">Phone</label>
-            <input
-              value={form.phone}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, phone: e.target.value }))
-              }
-              className="w-full border px-3 py-2 rounded"
-            />
-          </div>
-
-          {err && <div className="text-red-600 text-sm">{err}</div>}
-
-          <div className="flex justify-end gap-2 pt-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-3 py-2 rounded border"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={saving}
-              className="px-3 py-2 bg-indigo-600 text-white rounded"
-            >
-              {saving ? "Saving..." : "Save"}
-            </button>
-          </div>
-        </form>
-      </div>
     </div>
   );
 }

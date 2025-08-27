@@ -11,35 +11,30 @@ const App = () => {
   const { theme } = useThemeStore();
 
   return (
-    // Tailwind dark/light toggle via class
-    <div className={theme === "dark" ? "bg-black" : ""}>
-      <div
-        className={`min-h-screen  ${
-          theme === "dark" ? "bg-grey-100" : "bg-blue-100"
-        }`}
-      >
-        <Router>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <HomePage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/setting"
-              element={
-                <ProtectedRoute>
-                  <SettingPage />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </Router>
-      </div>
+    <div
+      className={`h-[100vh] ${theme === "dark" ? "bg-black" : "bg-blue-100"}`}
+    >
+      <Router>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <HomePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/setting"
+            element={
+              <ProtectedRoute>
+                <SettingPage />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Router>
     </div>
   );
 };
